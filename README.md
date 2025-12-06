@@ -60,25 +60,25 @@ Follow these steps to set up the project locally:
 ## 📸 Screenshots
 
 ### Home Feed
-<img width="1892" height="925" alt="Screenshot 2025-10-18 115125" src="https://github.com/user-attachments/assets/d34a357f-0c7f-4796-95d5-0ace1858634e" />
+<img width="1892" height="925" alt="Home Feed" src="screenshots/home_feed.png" />
 
 ### Dark Mode
-<img width="1895" height="929" alt="Screenshot 2025-10-18 115150" src="https://github.com/user-attachments/assets/40e2ca32-65a8-45c0-9987-46fd8ace7ea0" />
+<img width="1895" height="929" alt="Dark Mode" src="screenshots/dark_mode.png" />
 
 ### Profile Page
-<img width="1891" height="917" alt="Screenshot 2025-10-18 115218" src="https://github.com/user-attachments/assets/4caa0252-8871-4d51-a5e8-bccc2c70dd50" />
+<img width="1891" height="917" alt="Profile Page" src="screenshots/profile_page.png" />
 
 ### Login View
-<img width="1901" height="909" alt="Screenshot 2025-10-18 115248" src="https://github.com/user-attachments/assets/b550ab69-3f77-4e5a-bf60-e21295f87204" />
+<img width="1901" height="909" alt="Login View" src="screenshots/login_view.png" />
 
 ### Registration
-<img width="1900" height="909" alt="Screenshot 2025-10-18 115434" src="https://github.com/user-attachments/assets/d128031d-a486-4724-94a9-1b4bce01b360" />
+<img width="1900" height="909" alt="Registration" src="screenshots/registration.png" />
 
 ### Create Post
-<img width="1914" height="910" alt="Screenshot 2025-10-18 115303" src="https://github.com/user-attachments/assets/7304658d-e3d6-480f-85d8-2f8302e32e80" />
+<img width="1914" height="910" alt="Create Post" src="screenshots/create_post.png" />
 
 ### Comments
-<img width="1919" height="911" alt="Screenshot 2025-10-18 115319" src="https://github.com/user-attachments/assets/64298c94-83c6-483a-a4a6-d2bb2fda9010" />
+<img width="1919" height="911" alt="Comments" src="screenshots/comments.png" />
 
 ### Mobile View
-<img width="1900" height="912" alt="Screenshot 2025-10-18 115341" src="https://github.com/user-attachments/assets/0c299cbe-2307-444a-a5d5-e8dd901f4eab" />
+<img width="1900" height="912" alt="Mobile View" src="screenshots/mobile_view.png" />
