@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SocialHub{% endblock %}</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* =====================================
+           Root Colors and Variables
+        ====================================== */
+        :root {
+            --primary-color: #2A2A72;
+            --primary-hover: #1E1E5A;
+            --secondary-color: #6C63FF;
+            --accent-color: #00C6FF;
+            --background-color: #F4F7FB;
+            --card-background: #FFFFFF;
+            --text-dark: #1C1C1C;
+            --text-light: #6A6A6A;
+            --border-color: #E0E0E0;
+            --input-border: #CCC;
+            --input-focus: #2A2A72;
+            --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            line-height: 1.7;
+            scroll-behavior: smooth;
+            transition: background-color 0.4s, color 0.4s;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: color 0.3s ease;
+        }
+
+        /* =====================================
+           Navbar
+        ====================================== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 28px;
+            z-index: 1000;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+
+        .navbar:hover {
+            background: rgba(255, 255, 255, 1);
+            box-shadow: var(--shadow-md);
+        }
+
+        .logo a {
+            font-size: 1.9em;
+            font-weight: 800;
+            color: var(--primary-color);
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links a,
+        .logout-btn {
+            margin-left: 20px;
+            font-size: 1.15em;
+            background: none;
+            border: none;
+            color: var(--text-dark);
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover,
+        .logout-btn:hover {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            cursor: pointer;
+            font-size: 1.6em;
+            margin-left: 20px;
+            color: var(--text-dark);
+            transition: color 0.3s, transform 0.3s;
+            background: none;
+            border: none;
+        }
+
+        .theme-toggle:hover {
+            color: var(--primary-color);
+            transform: rotate(20deg);
+        }
+
+        /* =====================================
+           Hero Section
+        ====================================== */
+        .hero {
+            margin-top: 90px;
+            text-align: center;
+            background: linear-gradient(135deg, #2A2A72, #009FFD);
+            color: white;
+            padding: 100px 20px;
+            border-radius: 0 0 50% 50% / 10%;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: -20%;
+            left: -20%;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotateGlow 15s linear infinite;
+        }
+
+        @keyframes rotateGlow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hero h1 {
+            font-size: 2.8em;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            font-size: 1.1em;
+            max-width: 700px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+
+        /* =====================================
+           Features Section
+        ====================================== */
+        .features {
+            max-width: 1100px;
+            margin: 70px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 35px;
+        }
+
+        .feature-card {
+            background: var(--card-background);
+            border-radius: 14px;
+            box-shadow: var(--shadow-sm);
+            padding: 35px 25px;
+            text-align: center;
+            transition: all 0.35s ease-in-out;
+            border: 1px solid transparent;
+            position: relative;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px) scale(1.03);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--secondary-color);
+        }
+
+        .feature-card h3 {
+            color: var(--primary-color);
+            font-size: 1.4em;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            color: var(--text-light);
+            font-size: 0.96em;
+        }
+
+        /* =====================================
+           Container & Card Layouts
+        ====================================== */
+        .container {
+            flex: 1;
+            max-width: 900px;
+            margin: 40px auto 80px;
+            padding: 0 20px;
+        }
+
+        .card {
+            background-color: var(--card-background);
+            border-radius: 14px;
+            box-shadow: var(--shadow-md);
+            padding: 30px 35px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* =====================================
+           Forms — Modern Look
+        ====================================== */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        textarea,
+        select {
+            padding: 12px 14px;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+            background-color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: var(--input-focus);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(42, 42, 114, 0.15);
+        }
+
+        button[type="submit"] {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1em;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-card {
+            background: var(--card-background);
+            padding: 40px 45px;
+            border-radius: 14px;
+            box-shadow: var(--shadow-md);
+            max-width: 520px;
+            margin: 80px auto;
+            transition: all 0.3s;
+        }
+
+        .form-card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .form-card h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--primary-color);
+        }
+
+        .form-note {
+            text-align: center;
+            font-size: 0.9em;
+            color: var(--text-light);
+        }
+
+        /* =====================================
+           Footer
+        ====================================== */
+        .footer {
+            background: linear-gradient(135deg, #2A2A72, #009FFD);
+            color: white;
+            padding: 50px 20px;
+            border-top: 4px solid var(--primary-hover);
+            box-shadow: var(--shadow-md);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 35px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .footer h4 {
+            margin-bottom: 14px;
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        .footer p, .footer a {
+            font-size: 0.96em;
+            color: #EAEAEA;
+        }
+
+        .footer a:hover {
+            color: #FFFFFF;
+            text-decoration: underline;
+        }
+
+        .social-links ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .social-links li {
+            margin: 5px 0;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.25);
+            padding-top: 20px;
+            margin-top: 30px;
+            font-size: 0.88em;
+            color: #DADADA;
+        }
+
+        /* =====================================
+           Responsive Tweaks
+        ====================================== */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.1em;
+            }
+            .nav-links a,
+            .logout-btn {
+                font-size: 1em;
+            }
+            .features {
+                gap: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <header class="navbar">
+        <div class="logo"><a href="{% url 'feed' %}">SocialHub</a></div>
+        <nav class="nav-links">
+            {% if user.is_authenticated %}
+                <a href="{% url 'feed' %}" title="Home">&#x2302;</a>
+                <a href="{% url 'post_create' %}" title="New Post">&#x2795;</a>
+                <a href="{% url 'profile' user.username %}" title="Profile">&#x1F464;</a>
+                <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn" title="Logout">&#x21AA;</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'register' %}">Register</a>
+            {% endif %}
+            <button class="theme-toggle" id="theme-toggle" title="Toggle Theme">🌙</button>
+        </nav>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <h1>Welcome to SocialHub 🌐</h1>
+        <p>Your digital community for sharing ideas, stories, and inspiration — built with care and connection in mind.</p>
+    </section>
+
+    <!-- Features -->
+    <section class="features">
+        <div class="feature-card">
+            <h3>💬 Connect with Friends</h3>
+            <p>Build your network, chat, and share updates in real-time with your favorite people.</p>
+        </div>
+        <div class="feature-card">
+            <h3>📸 Share Your Moments</h3>
+            <p>Post photos, achievements, and moments that matter to you.</p>
+        </div>
+        <div class="feature-card">
+            <h3>⚙️ Customize Your Profile</h3>
+            <p>Express yourself by updating your bio, profile picture, and interests.</p>
+        </div>
+    </section>
+
+    <!-- Dynamic Page Content -->
+    <main class="container">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div>
+                <h4>About SocialHub</h4>
+                <p>SocialHub is a modern social networking platform designed to bring people together. Share ideas, connect with others, and make every post meaningful.</p>
+            </div>
+            <div>
+                <h4>Quick Links</h4>
+                <p><a href="#">About Us</a></p>
+                <p><a href="#">Privacy Policy</a></p>
+                <p><a href="#">Terms & Conditions</a></p>
+                <p><a href="#">Help Center</a></p>
+            </div>
+            <div>
+                <h4>Follow Us</h4>
+                <div class="social-links">
+                    <ul>
+                        <li><a href="#" title="Facebook">Facebook</a></li>
+                        <li><a href="#" title="Twitter">Twitter</a></li>
+                        <li><a href="#" title="Instagram">Instagram</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 SocialHub — Built with ❤️ by the SocialHub Team.</p>
+            {% if user.is_authenticated %}
+                <p>Logged in as <strong>{{ user.username }}</strong></p>
+            {% endif %}
+        </div>
+    </footer>
+
+    <!-- Dark Mode Script -->
+    <script>
+        const toggleBtn = document.getElementById('theme-toggle');
+        const root = document.documentElement;
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme === 'dark') enableDarkMode();
+
+        toggleBtn.addEventListener('click', () => {
+            if (root.dataset.theme === 'dark') {
+                disableDarkMode();
+            } else {
+                enableDarkMode();
+            }
+        });
+
+        function enableDarkMode() {
+            root.dataset.theme = 'dark';
+            localStorage.setItem('theme', 'dark');
+            toggleBtn.innerHTML = '☀️';
+            root.style.setProperty('--background-color', '#10121B');
+            root.style.setProperty('--card-background', '#1C1E2A');
+            root.style.setProperty('--text-dark', '#EAEAEA');
+            root.style.setProperty('--text-light', '#B0B0B0');
+            root.style.setProperty('--primary-color', '#6C63FF');
+            root.style.setProperty('--primary-hover', '#5950E6');
+            root.style.setProperty('--secondary-color', '#00C6FF');
+            root.style.setProperty('--border-color', '#2E2E40');
+        }
+
+        function disableDarkMode() {
+            root.dataset.theme = 'light';
+            localStorage.setItem('theme', 'light');
+            toggleBtn.innerHTML = '🌙';
+            root.style.setProperty('--background-color', '#F4F7FB');
+            root.style.setProperty('--card-background', '#FFFFFF');
+            root.style.setProperty('--text-dark', '#1C1C1C');
+            root.style.setProperty('--text-light', '#6A6A6A');
+            root.style.setProperty('--primary-color', '#2A2A72');
+            root.style.setProperty('--primary-hover', '#1E1E5A');
+            root.style.setProperty('--secondary-color', '#6C63FF');
+            root.style.setProperty('--border-color', '#E0E0E0');
+        }
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

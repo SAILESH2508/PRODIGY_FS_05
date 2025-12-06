@@ -1,0 +1,154 @@
+{% extends "social_app/base.html" %}
+
+{% block title %}Profile: {{ profile_user.username }}{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-card">
+        <h2 class="profile-username">@{{ profile_user.username }}</h2>
+        <p class="bio"><strong>Bio:</strong> {{ profile.bio|default:"No bio yet." }}</p>
+        
+        <div class="follow-stats">
+            <span><strong>Following:</strong> {{ profile.follows.count }}</span>
+            <span><strong>Followers:</strong> {{ profile_user.profile.followers.count }}</span>
+        </div>
+
+        {% if profile_user != request.user %}
+        <form method="post" action="{% url 'follow_user_toggle' profile_user.username %}">
+            {% csrf_token %}
+            {% if is_following %}
+                <button type="submit" class="follow-btn followed">Unfollow</button>
+            {% else %}
+                <button type="submit" class="follow-btn unfollowed">Follow</button>
+            {% endif %}
+        </form>
+        {% else %}
+            <p class="self-note"><small>This is your profile.</small></p>
+        {% endif %}
+    </div>
+
+    <div class="posts-section">
+        <h3 class="section-title">Posts by {{ profile_user.username }}</h3>
+        {% for post in posts %}
+            <div class="post-card">
+                <p class="post-content">{{ post.content }}</p>
+                <div class="post-meta">
+                    <span>{{ post.likes.count }} ❤️</span>
+                    <small>{{ post.created_at|date:"H:i M d" }}</small>
+                </div>
+            </div>
+        {% empty %}
+            <p class="no-posts">{{ profile_user.username }} hasn't posted anything yet.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+/* Profile Page Dark Theme */
+.profile-container {
+    max-width: 700px;
+    margin: 40px auto;
+    background: rgba(20, 20, 20, 0.95);
+    padding: 25px;
+    border-radius: 15px;
+    color: #eaeaea;
+    box-shadow: 0 0 20px rgba(255, 0, 90, 0.3);
+}
+
+.profile-username {
+    color: #ff4d6d;
+    font-size: 1.8rem;
+    text-align: center;
+}
+
+.bio {
+    text-align: center;
+    color: #bdbdbd;
+    margin-top: 10px;
+}
+
+.follow-stats {
+    display: flex;
+    justify-content: space-around;
+    margin: 15px 0;
+    font-size: 0.95rem;
+    color: #ccc;
+}
+
+.follow-btn {
+    display: block;
+    margin: 10px auto;
+    padding: 10px 25px;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s ease;
+}
+
+.followed {
+    background: #ff4d6d;
+    color: white;
+}
+
+.unfollowed {
+    background: #272727;
+    color: #ff4d6d;
+    border: 1px solid #ff4d6d;
+}
+
+.follow-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(255, 77, 109, 0.6);
+}
+
+.self-note {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.posts-section {
+    margin-top: 30px;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #ff7597;
+    margin-bottom: 15px;
+}
+
+.post-card {
+    background: #1c1c1c;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: 0.3s ease;
+}
+
+.post-card:hover {
+    background: #232323;
+    transform: translateY(-2px);
+}
+
+.post-content {
+    font-size: 1rem;
+    margin-bottom: 8px;
+    color: #f1f1f1;
+}
+
+.post-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #a0a0a0;
+}
+
+.no-posts {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,280 @@
+{% extends "social_app/base.html" %}
+{% load app_filters %}
+
+{% block title %}Home Feed{% endblock %}
+
+{% block content %}
+<div class="feed-container">
+    <h2 class="feed-title">Your Personalized Feed 🌟</h2>
+
+    {% for post in posts %}
+    <div class="post-card">
+        <div class="post-header">
+            <a href="{% url 'profile' post.user.username %}" class="username">
+                @{{ post.user.username }}
+            </a>
+            <small class="post-date">{{ post.created_at|date:"M d, Y" }}</small>
+        </div>
+
+        <div class="post-content">{{ post.content }}</div>
+
+        <div class="post-actions">
+            <form class="like-form" data-post-id="{{ post.id }}" method="post"
+                action="{% url 'like_post_toggle' post.id %}">
+                {% csrf_token %}
+                {% with liked_status=post|is_liked_by_user:request.user %}
+                <button type="submit" class="like-button {% if liked_status %}liked{% else %}unliked{% endif %}"
+                    data-is-liked="{{ liked_status|lower }}">
+                    {% if liked_status %}❤️ Unlike{% else %}🤍 Like{% endif %}
+                </button>
+                {% endwith %}
+            </form>
+            <span class="like-count" id="like-count-{{ post.id }}">
+                {{ post.likes.count }} Likes
+            </span>
+        </div>
+
+        <div class="comments-section">
+            <h4 class="comment-title">💬 Comments ({{ post.comments.count }})</h4>
+
+            {% for comment in post.comments.all|slice:":3" %}
+            <p class="comment-line">
+                <strong>
+                    <a href="{% url 'profile' comment.user.username %}" class="comment-username">
+                        {{ comment.user.username }}
+                    </a>:
+                </strong>
+                {{ comment.text }}
+            </p>
+            {% empty %}
+            <p class="no-comments">No comments yet.</p>
+            {% endfor %}
+
+            <form method="post" action="{% url 'add_comment_to_post' post.id %}" class="comment-form">
+                {% csrf_token %}
+                <input type="text" name="text" placeholder="Add a comment..." required>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+    {% empty %}
+    <p class="no-posts">Follow some users or create a post to see content!</p>
+    {% endfor %}
+</div>
+
+<style>
+    /* 🌟 Home Feed Page Styling 🌟 */
+
+    body {
+        background: #f4f6fa;
+        font-family: "Inter", sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Container */
+    .feed-container {
+        max-width: 700px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    /* Title */
+    .feed-title {
+        text-align: center;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #222;
+        margin-bottom: 25px;
+    }
+
+    /* Post Card */
+    .post-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+        padding: 20px;
+        margin-bottom: 25px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .post-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Header */
+    .post-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .username {
+        font-weight: 600;
+        color: #0077ff;
+        text-decoration: none;
+    }
+
+    .username:hover {
+        text-decoration: underline;
+    }
+
+    .post-date {
+        color: #888;
+        font-size: 0.85rem;
+    }
+
+    /* Content */
+    .post-content {
+        font-size: 1rem;
+        color: #333;
+        margin: 10px 0 15px;
+        line-height: 1.5;
+    }
+
+    /* Actions */
+    .post-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+        border-top: 1px solid #eee;
+        padding-top: 10px;
+    }
+
+    .like-form {
+        display: inline;
+    }
+
+    .like-button {
+        border: none;
+        border-radius: 20px;
+        padding: 6px 14px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .like-button.unliked {
+        background: #f0f4ff;
+        color: #0077ff;
+    }
+
+    .like-button.unliked:hover {
+        background: #dce8ff;
+    }
+
+    .like-button.liked {
+        background: #ffeef0;
+        color: #e63946;
+    }
+
+    .like-button.liked:hover {
+        background: #ffd6da;
+    }
+
+    .like-count {
+        font-size: 0.9rem;
+        color: #555;
+    }
+
+    /* Comments */
+    .comments-section {
+        border-top: 1px solid #eee;
+        margin-top: 15px;
+        padding-top: 12px;
+    }
+
+    .comment-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .comment-line {
+        margin: 4px 0;
+        font-size: 0.9rem;
+        color: #444;
+    }
+
+    .comment-username {
+        color: #0077ff;
+        text-decoration: none;
+    }
+
+    .comment-username:hover {
+        text-decoration: underline;
+    }
+
+    .no-comments {
+        font-style: italic;
+        font-size: 0.9rem;
+        color: #888;
+    }
+
+    /* Comment Form */
+    .comment-form {
+        display: flex;
+        align-items: center;
+        margin-top: 8px;
+    }
+
+    .comment-form input[type="text"] {
+        flex: 1;
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 0.9rem;
+        outline: none;
+        transition: border-color 0.2s ease;
+    }
+
+    .comment-form input[type="text"]:focus {
+        border-color: #0077ff;
+    }
+
+    .comment-form button {
+        margin-left: 8px;
+        padding: 7px 12px;
+        border: none;
+        border-radius: 8px;
+        background: #0077ff;
+        color: white;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: background 0.3s ease;
+    }
+
+    .comment-form button:hover {
+        background: #005fd1;
+    }
+
+    /* Empty message */
+    .no-posts {
+        text-align: center;
+        color: #555;
+        font-size: 1rem;
+        margin-top: 30px;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+        .feed-container {
+            padding: 0 10px;
+        }
+
+        .post-card {
+            padding: 15px;
+        }
+
+        .feed-title {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}

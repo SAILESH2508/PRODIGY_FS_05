@@ -1,0 +1,222 @@
+{% extends "social_app/base.html" %}
+{% load static %}
+
+{% block title %}Register | SocialHub{% endblock %}
+
+{% block content %}
+<div class="form-wrapper">
+    <div class="form-card">
+        <h2 class="form-title">Create Your Account 🚀</h2>
+        <p class="form-subtitle">Join SocialHub and connect with amazing people</p>
+
+        <form method="POST" class="register-form">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-field-wrapper">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="field-error">
+                            {% for error in field.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn-register">Sign Up</button>
+        </form>
+
+        <div class="divider"><span>or</span></div>
+
+        <div class="social-login">
+            <button class="btn-social google">Sign Up with Google</button>
+            <button class="btn-social facebook">Sign Up with Facebook</button>
+        </div>
+
+        <p class="login-text">
+            Already have an account?
+            <a href="{% url 'login' %}">Log In</a>
+        </p>
+    </div>
+</div>
+
+<style>
+    /* 🌟 Perfect Centering and Clean Styling 🌟 */
+    body {
+        background: #f5f7fb;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Wrapper ensures full viewport center */
+    .form-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 70px); /* adjust if navbar height differs */
+        width: 100%;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .form-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+        width: 100%;
+        max-width: 450px;
+        padding: 40px;
+        text-align: center;
+    }
+
+    .form-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #222;
+        margin-bottom: 10px;
+    }
+
+    .form-subtitle {
+        font-size: 0.95rem;
+        color: #666;
+        margin-bottom: 25px;
+    }
+
+    .form-field-wrapper {
+        text-align: left;
+        margin-bottom: 15px;
+    }
+
+    .form-field-wrapper label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #333;
+    }
+
+    input[type="text"], input[type="password"], input[type="email"] {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 1rem;
+        outline: none;
+        transition: all 0.2s ease;
+    }
+
+    input:focus {
+        border-color: #0066ff;
+        box-shadow: 0 0 4px rgba(0, 102, 255, 0.2);
+    }
+
+    .field-error {
+        color: red;
+        font-size: 0.8rem;
+        margin-top: 5px;
+    }
+
+    .btn-register {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #00b06b, #009d5e);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: 0.3s;
+    }
+
+    .btn-register:hover {
+        background: linear-gradient(135deg, #009d5e, #008b55);
+    }
+
+    .divider {
+        position: relative;
+        margin: 20px 0;
+        text-align: center;
+    }
+
+    .divider::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background: #ddd;
+    }
+
+    .divider span {
+        background: #fff;
+        padding: 0 10px;
+        color: #888;
+        font-size: 0.9rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .social-login {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .btn-social {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: #fff;
+        font-size: 0.95rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: 0.3s ease;
+    }
+
+    .btn-social.google {
+        border-color: #ea4335;
+        color: #ea4335;
+    }
+
+    .btn-social.google:hover {
+        background: #ffebeb;
+    }
+
+    .btn-social.facebook {
+        border-color: #1877f2;
+        color: #1877f2;
+    }
+
+    .btn-social.facebook:hover {
+        background: #e6f2ff;
+    }
+
+    .login-text {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 15px;
+    }
+
+    .login-text a {
+        color: #0066ff;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .login-text a:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 480px) {
+        .form-card {
+            padding: 25px;
+        }
+    }
+</style>
+{% endblock %}

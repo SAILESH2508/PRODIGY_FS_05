@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Django Social Demo</title>
+    
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f0f2f5;
+            padding: 20px;
+        }
+        .post-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            padding: 15px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .post-header {
+            font-weight: bold;
+            color: #1c1e21;
+            margin-bottom: 10px;
+        }
+        .post-content {
+            margin-bottom: 15px;
+            color: #4b4f56;
+        }
+        .post-actions {
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .like-button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .like-button.liked {
+            background-color: #1877f2;
+            color: white;
+        }
+        .like-button.unliked {
+            background-color: #e4e6eb;
+            color: #4b4f56;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="post-card" id="post-1">
+        <div class="post-header">@User_A | 5 minutes ago</div>
+        <div class="post-content">This is the first post on our brand new Django Social Media Platform! Welcome!</div>
+        <div class="post-actions">
+            <span class="like-count" data-post-id="1">10 Likes</span> 
+            
+            <form class="like-form" data-post-id="1">
+                {% csrf_token %}
+                <button 
+                    type="submit" 
+                    class="like-button unliked" 
+                    data-is-liked="false"
+                >
+                    Like
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="post-card" id="post-2">
+        <div class="post-header">@User_B | 2 hours ago</div>
+        <div class="post-content">Model design is the most crucial part of any social app. Great work on the schema!</div>
+        <div class="post-actions">
+            <span class="like-count" data-post-id="2">5 Likes</span>
+            <form class="like-form" data-post-id="2">
+                {% csrf_token %}
+                <button 
+                    type="submit" 
+                    class="like-button liked" 
+                    data-is-liked="true"
+                >
+                    Unlike
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Function to get the CSRF token from the Django form
+        function getCsrfToken(form) {
+            return form.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        }
+
+        // Get all like forms on the page
+        const likeForms = document.querySelectorAll('.like-form');
+
+        likeForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault(); // Prevent standard page reload
+
+                const postId = this.dataset.postId;
+                const csrfToken = getCsrfToken(this);
+                const button = this.querySelector('.like-button');
+                const isLiked = button.dataset.isLiked === 'true';
+                
+                // Construct the URL dynamically
+                // NOTE: In a real template, you would use {% url 'like_post_toggle' post_id %} 
+                // but here we hardcode the structure for the demo.
+                const url = `/post/${postId}/like/`; 
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json'
+                    },
+                    // Send an empty body for a simple toggle action
+                    body: JSON.stringify({}) 
+                })
+                .then(response => {
+                    // Django's view redirects, which Fetch API follows. 
+                    // Since the view only toggles the state, we don't strictly need JSON back,
+                    // but we can assume success and update the UI directly.
+                    if (response.ok || response.redirected) {
+                        
+                        // --- UI Update Logic ---
+                        const likeCountSpan = document.querySelector(`.like-count[data-post-id="${postId}"]`);
+                        let currentCount = parseInt(likeCountSpan.textContent.split(' ')[0]);
+
+                        if (isLiked) {
+                            // Was liked, now unliked
+                            button.textContent = 'Like';
+                            button.classList.remove('liked');
+                            button.classList.add('unliked');
+                            button.dataset.isLiked = 'false';
+                            currentCount -= 1;
+                        } else {
+                            // Was unliked, now liked
+                            button.textContent = 'Unlike';
+                            button.classList.remove('unliked');
+                            button.classList.add('liked');
+                            button.dataset.isLiked = 'true';
+                            currentCount += 1;
+                        }
+                        
+                        // Update the visible count
+                        likeCountSpan.textContent = `${currentCount} Likes`;
+
+                    } else {
+                        console.error('Like toggle failed:', response.statusText);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error during fetch operation:', error);
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
