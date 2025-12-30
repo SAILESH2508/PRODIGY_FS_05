@@ -57,28 +57,3 @@ Follow these steps to set up the project locally:
 6.  **Access the App**
     Open your browser and go to: `http://127.0.0.1:8000/`
 
-## 📸 Screenshots
-
-### Home Feed
-<img width="1892" height="925" alt="Home Feed" src="screenshots/home_feed.png" />
-
-### Dark Mode
-<img width="1895" height="929" alt="Dark Mode" src="screenshots/dark_mode.png" />
-
-### Profile Page
-<img width="1891" height="917" alt="Profile Page" src="screenshots/profile_page.png" />
-
-### Login View
-<img width="1901" height="909" alt="Login View" src="screenshots/login_view.png" />
-
-### Registration
-<img width="1900" height="909" alt="Registration" src="screenshots/registration.png" />
-
-### Create Post
-<img width="1914" height="910" alt="Create Post" src="screenshots/create_post.png" />
-
-### Comments
-<img width="1919" height="911" alt="Comments" src="screenshots/comments.png" />
-
-### Mobile View
-<img width="1900" height="912" alt="Mobile View" src="screenshots/mobile_view.png" />
