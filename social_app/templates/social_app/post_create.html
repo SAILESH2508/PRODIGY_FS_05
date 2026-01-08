@@ -1,0 +1,136 @@
+{% extends 'social_app/base.html' %}
+{% load static %}
+
+{% block title %}Create Post - SocialHub{% endblock %}
+
+{% block content %}
+<div style="max-width: 650px; margin: 0 auto;">
+
+    <!-- Header -->
+    <div class="stellar-card mb-6 text-center animate-fade-in">
+        <h1 class="text-gradient mb-2" style="font-size: 2.5rem;">
+            <ion-icon name="create-outline" style="vertical-align: middle; margin-right: 12px;"></ion-icon>
+            Compose
+        </h1>
+        <p class="text-muted" style="font-size: 1.1rem;">Share a moment with your community.</p>
+    </div>
+
+    <!-- Post Creation Form -->
+    <div class="stellar-card animate-fade-in" style="animation-delay: 0.1s;">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Content Field -->
+            <div class="mb-6">
+                <label for="{{ form.content.id_for_label }}" class="text-muted mb-3"
+                    style="display: block; font-weight: 500; font-size: 1.1rem;">
+                    What's happening?
+                </label>
+                <div class="stellar-input-group">
+                    <textarea name="content" id="{{ form.content.id_for_label }}" class="stellar-input"
+                        style="min-height: 180px; resize: none; padding: 1.25rem;"
+                        placeholder="Type your message here... Use #hashtags and @mentions!" required></textarea>
+                </div>
+            </div>
+
+            <!-- Image Upload -->
+            <div class="mb-6">
+                <label class="text-muted mb-3" style="display: block; font-weight: 500; font-size: 1rem;">
+                    Add Media
+                </label>
+                <div class="flex-center gap-4" style="justify-content: flex-start;">
+                    <label class="btn btn-secondary btn-pill" style="cursor: pointer; padding: 0.75rem 1.5rem;">
+                        <ion-icon name="image-outline" style="font-size: 1.25rem;"></ion-icon>
+                        <span style="margin-left: 8px;">Upload Image</span>
+                        <input type="file" name="image" id="{{ form.image.id_for_label }}" style="display: none;">
+                    </label>
+                    <span id="file-name" class="text-dim" style="font-size: 0.9rem;">No file chosen</span>
+                </div>
+                <p class="text-dim mt-2" style="font-size: 0.8rem;">JPG, PNG, GIF up to 5MB</p>
+            </div>
+
+            <!-- Image Preview -->
+            <div id="image-preview"
+                style="display: none; margin-bottom: 2rem; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--glass-border);">
+                <img id="preview-img" style="width: 100%; max-height: 400px; object-fit: cover;">
+            </div>
+
+            <!-- Pro Tips -->
+            <div class="stellar-card mb-6"
+                style="background: hsla(var(--h-primary), 100%, 60%, 0.05); border-color: hsla(var(--h-primary), 100%, 60%, 0.2); padding: 1.25rem;">
+                <div class="flex-center gap-2 mb-2" style="justify-content: flex-start; color: var(--primary);">
+                    <ion-icon name="bulb" style="font-size: 1.1rem;"></ion-icon>
+                    <span
+                        style="font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Pro
+                        Tips</span>
+                </div>
+                <div class="flex-center" style="justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+                    <div class="text-muted" style="font-size: 0.85rem;"><span class="text-secondary"
+                            style="font-weight: 600;">#hashtags</span> categorize your post</div>
+                    <div class="text-muted" style="font-size: 0.85rem;"><span class="text-accent"
+                            style="font-weight: 600;">@usernames</span> notify others</div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex-center gap-3"
+                style="justify-content: flex-end; padding-top: 1.5rem; border-top: 1px solid var(--glass-border);">
+                <a href="{% url 'feed' %}" class="btn-ghost"
+                    style="padding: 0.85rem 1.75rem; border-radius: var(--radius-pill);">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary btn-pill" style="padding: 0.85rem 2rem;">
+                    <ion-icon name="sparkles" style="font-size: 1.1rem;"></ion-icon>
+                    <span style="margin-left: 8px;">Post to Feed</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const imageInput = document.querySelector('input[name="image"]');
+        const fileNameSpan = document.getElementById('file-name');
+        const preview = document.getElementById('image-preview');
+        const previewImg = document.getElementById('preview-img');
+
+        if (imageInput) {
+            imageInput.addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    fileNameSpan.textContent = file.name;
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        previewImg.src = e.target.result;
+                        preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    fileNameSpan.textContent = 'No file chosen';
+                    preview.style.display = 'none';
+                }
+            });
+        }
+
+        // Character counter for content
+        const contentField = document.querySelector('textarea[name="content"]');
+        if (contentField) {
+            const maxLength = 2000;
+            const counter = document.createElement('div');
+            counter.style.cssText = 'text-align: right; font-size: 0.8rem; color: var(--text-dim); margin-top: 8px; font-family: monospace;';
+            contentField.parentNode.appendChild(counter);
+
+            function updateCounter() {
+                const len = contentField.value.length;
+                counter.textContent = `${len} / ${maxLength}`;
+                counter.style.color = len > maxLength * 0.9 ? 'var(--accent)' : 'var(--text-dim)';
+            }
+
+            contentField.addEventListener('input', updateCounter);
+            updateCounter();
+        }
+    });
+</script>
+{% endblock %}

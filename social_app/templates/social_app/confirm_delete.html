@@ -1,0 +1,46 @@
+{% extends 'social_app/base.html' %}
+
+{% block title %}Delete {{ type|title }} - SocialHub{% endblock %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 0 auto;">
+
+    <div class="stellar-card text-center">
+        <div style="color: var(--accent); font-size: 3rem; margin-bottom: 1rem;">
+            <ion-icon name="warning-outline"></ion-icon>
+        </div>
+
+        <h2 style="color: var(--accent); margin-bottom: 1rem;">Delete {{ type|title }}?</h2>
+
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">
+            Are you sure you want to delete this {{ type }}? This action cannot be undone.
+        </p>
+
+        {% if type == 'post' %}
+        <div
+            style="background: hsla(var(--h-primary), 91%, 60%, 0.03); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 2rem; text-align: left;">
+            <p style="font-size: 0.9rem; color: var(--text-main);">
+                "{{ object.content|truncatewords:20 }}"
+            </p>
+            <small style="color: var(--text-muted);">
+                Posted {{ object.created_at|date:"M d, Y" }}
+            </small>
+        </div>
+        {% endif %}
+
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="javascript:history.back()" class="btn btn-outline" style="padding: 12px 24px;">
+                Cancel
+            </a>
+            <form method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger" style="padding: 12px 24px;">
+                    <ion-icon name="trash-outline" style="margin-right: 8px;"></ion-icon>
+                    Delete {{ type|title }}
+                </button>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

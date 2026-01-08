@@ -1,0 +1,128 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SocialHub{% endblock %}</title>
+    <link href="{% static 'social_app/css/style.css' %}?v=2.0" rel="stylesheet">
+    <!-- Ionicons for Icons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+
+<body>
+    <!-- Ambient Background -->
+    <div class="bg-stellar"></div>
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+
+    <!-- Navbar -->
+    <header class="nav-wrapper">
+        <nav class="navbar animate-fade-in">
+            <a href="{% url 'feed' %}" class="navbar-brand">
+                <span class="text-gradient">Social</span>Hub
+            </a>
+
+            {% if user.is_authenticated %}
+            <form action="{% url 'search' %}" method="get" class="stellar-input-group" style="max-width: 350px;">
+                <input type="text" name="q" placeholder="Explore SocialHub..." class="stellar-input stellar-input-pill"
+                    style="padding-left: 3rem;">
+                <ion-icon name="search-outline"
+                    style="position: absolute; left: 1.25rem; top: 1.1rem; color: var(--text-dim); font-size: 1.2rem;"></ion-icon>
+            </form>
+            {% endif %}
+
+            <div class="nav-links">
+                {% if user.is_authenticated %}
+                <a href="{% url 'feed' %}"
+                    class="nav-item {% if request.resolver_match.url_name == 'feed' %}active{% endif %}"
+                    title="Global Feed">
+                    <ion-icon name="planet-outline"></ion-icon>
+                </a>
+                <a href="{% url 'following_feed' %}"
+                    class="nav-item {% if request.resolver_match.url_name == 'following_feed' %}active{% endif %}"
+                    title="Following">
+                    <ion-icon name="people-outline"></ion-icon>
+                </a>
+                <a href="{% url 'post_create' %}"
+                    class="nav-item {% if request.resolver_match.url_name == 'post_create' %}active{% endif %}"
+                    title="New Post">
+                    <ion-icon name="add-circle-outline"></ion-icon>
+                </a>
+                <a href="{% url 'notifications' %}"
+                    class="nav-item {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}"
+                    title="Notifications">
+                    <ion-icon name="notifications-outline"></ion-icon>
+                    <span id="notification-badge" class="nav-badge" style="display: none;"></span>
+                </a>
+                <a href="{% url 'profile' user.username %}"
+                    class="nav-item {% if request.resolver_match.url_name == 'profile' and request.resolver_match.kwargs.username == user.username %}active{% endif %}"
+                    title="Profile">
+                    <ion-icon name="person-outline"></ion-icon>
+                </a>
+                <a href="{% url 'profile_update' %}"
+                    class="nav-item {% if request.resolver_match.url_name == 'profile_update' %}active{% endif %}"
+                    title="Settings">
+                    <ion-icon name="settings-outline"></ion-icon>
+                </a>
+                <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="nav-item" title="Logout"
+                        style="background: none; border: none; cursor: pointer;">
+                        <ion-icon name="log-out-outline" style="color: var(--accent);"></ion-icon>
+                    </button>
+                </form>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-ghost">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-primary btn-pill">Join Now</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container animate-fade-in">
+        {% if messages %}
+        <div class="messages-container" style="margin-bottom: 2rem;">
+            {% for message in messages %}
+            <div class="stellar-card"
+                style="border-left: 4px solid var(--secondary); padding: 1rem; margin-bottom: 1rem;">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    {% block extra_js %}{% endblock %}
+
+    <!-- Notification Badge Script -->
+    {% if user.is_authenticated %}
+    <script>
+        function updateNotificationBadge() {
+            fetch('/api/notifications/unread-count/')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('notification-badge');
+                    if (data.count > 0) {
+                        badge.textContent = data.count > 99 ? '99+' : data.count;
+                        badge.style.display = 'flex';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                })
+                .catch(error => console.error('Error fetching notification count:', error));
+        }
+        updateNotificationBadge();
+        setInterval(updateNotificationBadge, 30000);
+    </script>
+    {% endif %}
+</body>
+
+</html>

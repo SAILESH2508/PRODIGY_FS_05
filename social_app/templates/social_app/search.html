@@ -1,0 +1,182 @@
+{% extends 'social_app/base.html' %}
+{% load static %}
+
+{% block title %}Search{% if query %} - "{{ query }}"{% endif %} - SocialHub{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+
+    <!-- Search Header -->
+    <div class="stellar-card mb-6 animate-fade-in">
+        <h1 class="text-gradient mb-4" style="font-size: 2.25rem;">
+            <ion-icon name="search-outline" style="vertical-align: middle; margin-right: 12px;"></ion-icon>
+            Search Results
+        </h1>
+
+        <!-- Search Form -->
+        <form action="{% url 'search' %}" method="get" class="mb-4">
+            <div class="stellar-input-group">
+                <ion-icon name="search-outline"
+                    style="position: absolute; left: 1.25rem; top: 1.1rem; color: var(--text-dim); font-size: 1.3rem; z-index: 1;"></ion-icon>
+                <input type="text" name="q" value="{{ query }}" placeholder="Search people, posts, or hashtags..."
+                    class="stellar-input" style="padding-left: 3.5rem;">
+            </div>
+        </form>
+
+        {% if query %}
+        <p class="text-muted" style="font-size: 1.1rem;">
+            Showing results for "<span class="text-secondary" style="font-weight: 600;">{{ query }}</span>"
+        </p>
+        {% endif %}
+    </div>
+
+    {% if query %}
+
+    <!-- Users Section -->
+    {% if users %}
+    <div class="section-header mb-4">
+        <h3 class="text-gradient" style="font-size: 1.5rem; display: flex; align-items: center;">
+            <ion-icon name="people" style="margin-right: 12px;"></ion-icon>
+            People
+        </h3>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem;"
+        class="mb-8">
+        {% for user in users %}
+        <div class="stellar-card flex-center animate-fade-in"
+            style="justify-content: flex-start; padding: 1.25rem; gap: 1rem;">
+            <div class="avatar-wrapper" style="width: 56px; height: 56px;">
+                {% if user.profile.avatar %}
+                <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="avatar">
+                {% else %}
+                <div class="avatar flex-center"
+                    style="background: var(--primary); font-size: 1.25rem; font-weight: bold; color: white;">
+                    {{ user.username|slice:":1"|upper }}
+                </div>
+                {% endif %}
+            </div>
+
+            <div style="flex: 1;">
+                <h4 class="mb-0">
+                    <a href="{% url 'profile' user.username %}" class="text-white hover-secondary">
+                        {{ user.username }}
+                        {% if user.profile.is_verified %}
+                        <ion-icon name="checkmark-circle" class="text-secondary"
+                            style="font-size: 1rem; vertical-align: middle;"></ion-icon>
+                        {% endif %}
+                    </a>
+                </h4>
+                <p class="text-dim mb-0" style="font-size: 0.85rem;">{{ user.profile.followers_count }} followers</p>
+            </div>
+
+            <a href="{% url 'profile' user.username %}" class="btn-ghost" style="padding: 8px; border-radius: 50%;">
+                <ion-icon name="arrow-forward-outline" style="font-size: 1.25rem;"></ion-icon>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Hashtags Section -->
+    {% if hashtags %}
+    <div class="section-header mb-4">
+        <h3 class="text-gradient" style="font-size: 1.5rem; display: flex; align-items: center;">
+            <ion-icon name="pricetags" style="margin-right: 12px;"></ion-icon>
+            Hashtags
+        </h3>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;" class="mb-8">
+        {% for hashtag in hashtags %}
+        <a href="{% url 'hashtag_view' hashtag.name %}" class="stellar-card flex-center"
+            style="padding: 0.75rem 1.25rem; gap: 10px; text-decoration: none;">
+            <span class="text-secondary" style="font-weight: 600; font-size: 1.1rem;">#{{ hashtag.name }}</span>
+            <span class="text-dim" style="font-size: 0.85rem;">{{ hashtag.posts_count }} posts</span>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Posts Section -->
+    {% if posts %}
+    <div class="section-header mb-4">
+        <h3 class="text-gradient" style="font-size: 1.5rem; display: flex; align-items: center;">
+            <ion-icon name="document-text" style="margin-right: 12px;"></ion-icon>
+            Posts
+        </h3>
+    </div>
+
+    <div class="feed-stream">
+        {% for post in posts %}
+        <article class="stellar-card post-card mb-4 animate-fade-in" style="padding: 1.5rem;">
+            <div class="flex-between mb-3">
+                <div class="flex-center gap-3">
+                    <div class="avatar-wrapper" style="width: 32px; height: 32px;">
+                        {% if post.user.profile.avatar %}
+                        <img src="{{ post.user.profile.avatar.url }}" alt="{{ post.user.username }}" class="avatar">
+                        {% else %}
+                        <div class="avatar flex-center"
+                            style="background: var(--primary); font-size: 0.8rem; color: white;">
+                            {{ post.user.username|slice:":1"|upper }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <strong class="text-main">{{ post.user.username }}</strong>
+                </div>
+                <span class="text-dim" style="font-size: 0.85rem;">{{ post.created_at|date:"M d" }}</span>
+            </div>
+            <div class="text-main mb-3">{{ post.content|truncatewords:40|linebreaks|urlize }}</div>
+            <a href="{% url 'post_detail' post.id %}" class="text-secondary"
+                style="font-size: 0.9rem; font-weight: 500;">
+                Read full post <ion-icon name="chevron-forward" style="vertical-align: middle;"></ion-icon>
+            </a>
+        </article>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- No Results -->
+    {% if not users and not posts and not hashtags %}
+    <div class="stellar-card text-center animate-fade-in" style="padding: 5rem 2rem;">
+        <ion-icon name="search-outline"
+            style="font-size: 4rem; color: var(--text-dim); margin-bottom: 1.5rem; opacity: 0.5;"></ion-icon>
+        <h3 class="text-white mb-2">No results found</h3>
+        <p class="text-muted">Try searching for different keywords, usernames, or hashtags.</p>
+    </div>
+    {% endif %}
+
+    {% else %}
+
+    <!-- Empty Search State -->
+    <div class="stellar-card text-center animate-fade-in" style="padding: 5rem 2rem;">
+        <div class="ambient-orb"
+            style="width: 150px; height: 150px; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.15;">
+        </div>
+        <ion-icon name="compass-outline"
+            style="font-size: 4rem; color: var(--primary); margin-bottom: 1.5rem;"></ion-icon>
+        <h3 class="text-white mb-3">Discover the Community</h3>
+        <p class="text-muted mb-6" style="max-width: 400px; margin-left: auto; margin-right: auto;">
+            Explore trending topics, new people, and engaging stories across SocialHub.
+        </p>
+
+        <div class="flex-center gap-3" style="flex-wrap: wrap;">
+            <div class="stellar-card"
+                style="padding: 0.5rem 1rem; background: hsla(280, 100%, 70%, 0.1); border-color: hsla(280, 100%, 70%, 0.2);">
+                <span class="text-primary" style="font-size: 0.9rem; font-weight: 600;">#technology</span>
+            </div>
+            <div class="stellar-card"
+                style="padding: 0.5rem 1rem; background: hsla(190, 100%, 70%, 0.1); border-color: hsla(190, 100%, 70%, 0.2);">
+                <span class="text-secondary" style="font-size: 0.9rem; font-weight: 600;">#creative</span>
+            </div>
+            <div class="stellar-card"
+                style="padding: 0.5rem 1rem; background: hsla(350, 100%, 70%, 0.1); border-color: hsla(350, 100%, 70%, 0.2);">
+                <span class="text-accent" style="font-size: 0.9rem; font-weight: 600;">#community</span>
+            </div>
+        </div>
+    </div>
+
+    {% endif %}
+
+</div>
+{% endblock %}

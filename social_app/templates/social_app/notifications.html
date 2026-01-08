@@ -1,0 +1,107 @@
+{% extends 'social_app/base.html' %}
+{% load static %}
+
+{% block title %}Notifications - SocialHub{% endblock %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 0 auto;">
+
+    <!-- Header -->
+    <div class="stellar-card mb-6 animate-fade-in">
+        <h1 class="text-gradient mb-2" style="font-size: 2.25rem;">
+            <ion-icon name="notifications-outline" style="vertical-align: middle; margin-right: 12px;"></ion-icon>
+            Activity
+        </h1>
+        <p class="text-muted" style="font-size: 1.1rem;">See who's interacting with your stories.</p>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="notifications-stream">
+        {% for notification in notifications %}
+        <div class="stellar-card mb-4 animate-fade-in reveal-{{ forloop.counter|slice:':2' }}"
+            style="padding: 1.25rem 1.5rem;">
+            <div class="flex-center" style="gap: 1.25rem; justify-content: flex-start; align-items: flex-start;">
+                <!-- Type Indicator and Avatar -->
+                <div style="position: relative;">
+                    <div class="avatar-wrapper" style="width: 50px; height: 50px;">
+                        {% if notification.sender.profile.avatar %}
+                        <img src="{{ notification.sender.profile.avatar.url }}" alt="{{ notification.sender.username }}"
+                            class="avatar">
+                        {% else %}
+                        <div class="avatar flex-center"
+                            style="background: var(--primary); font-size: 1.25rem; font-weight: bold; color: white;">
+                            {{ notification.sender.username|slice:":1"|upper }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div style="position: absolute; bottom: -4px; right: -4px; width: 24px; height: 24px; border-radius: 50%; background: var(--bg-dark); border: 2px solid var(--bg-dark);"
+                        class="flex-center">
+                        {% if notification.notification_type == 'like' %}
+                        <ion-icon name="heart" class="text-accent" style="font-size: 0.9rem;"></ion-icon>
+                        {% elif notification.notification_type == 'comment' %}
+                        <ion-icon name="chatbubble" class="text-secondary" style="font-size: 0.9rem;"></ion-icon>
+                        {% elif notification.notification_type == 'follow' %}
+                        <ion-icon name="person-add" class="text-primary" style="font-size: 0.9rem;"></ion-icon>
+                        {% elif notification.notification_type == 'mention' %}
+                        <ion-icon name="at" class="text-secondary" style="font-size: 0.9rem;"></ion-icon>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Notification Content -->
+                <div style="flex: 1; padding-top: 4px;">
+                    <p style="margin: 0; font-size: 1.05rem; color: var(--text-main); line-height: 1.4;">
+                        <a href="{% url 'profile' notification.sender.username %}" class="text-white hover-secondary"
+                            style="font-weight: 600;">{{ notification.sender.username }}</a>
+                        <span class="text-muted">{{ notification.message }}</span>
+                    </p>
+                    <div class="flex-center gap-4 mt-2" style="justify-content: flex-start;">
+                        <span class="text-dim" style="font-size: 0.85rem;">{{ notification.created_at|timesince }}
+                            ago</span>
+                        {% if notification.post %}
+                        <a href="{% url 'post_detail' notification.post.id %}" class="btn-ghost"
+                            style="font-size: 0.85rem; padding: 2px 8px; border-radius: 4px;">
+                            View post <ion-icon name="arrow-forward"
+                                style="vertical-align: middle; margin-left: 2px;"></ion-icon>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="stellar-card text-center animate-fade-in" style="padding: 5rem 2rem;">
+            <ion-icon name="notifications-off-outline"
+                style="font-size: 4rem; color: var(--text-dim); margin-bottom: 1.5rem; opacity: 0.5;"></ion-icon>
+            <h3 class="text-main mb-2">Clean Slate</h3>
+            <p class="text-muted">No notifications yet. When people interact with you, it will show up here.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="flex-center mt-8 mb-8">
+        <div class="stellar-card py-2 px-4 flex-center gap-4">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="btn-ghost"
+                style="padding: 8px; border-radius: 50%;">
+                <ion-icon name="chevron-back-outline" style="font-size: 1.25rem;"></ion-icon>
+            </a>
+            {% endif %}
+
+            <span class="text-muted" style="font-weight: 500;">
+                Page <span class="text-main">{{ page_obj.number }}</span> of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="btn-ghost" style="padding: 8px; border-radius: 50%;">
+                <ion-icon name="chevron-forward-outline" style="font-size: 1.25rem;"></ion-icon>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

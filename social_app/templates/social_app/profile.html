@@ -1,0 +1,171 @@
+{% extends 'social_app/base.html' %}
+
+{% block title %}{{ profile_user.username }} - SocialHub{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+
+    <!-- Profile Header -->
+    <div class="stellar-card mb-6" style="padding: 0; text-align: center;">
+        <!-- Banner Effect -->
+        <div
+            style="height: 160px; background: linear-gradient(135deg, var(--primary), var(--secondary)); opacity: 0.2; position: relative;">
+            <div
+                style="position: absolute; inset: 0; background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); opacity: 0.1;">
+            </div>
+        </div>
+
+        <div style="margin-top: -80px; position: relative; padding: 0 2rem 2.5rem;">
+            <!-- Profile Avatar -->
+            <div class="flex-center" style="margin-bottom: 1.5rem;">
+                <div class="avatar-wrapper"
+                    style="width: 160px; height: 160px; border: 6px solid var(--bg-dark); box-shadow: var(--shadow-lg);">
+                    {% if profile.avatar %}
+                    <img src="{{ profile.avatar.url }}" alt="{{ profile_user.username }}" class="avatar">
+                    {% else %}
+                    <div class="avatar flex-center" style="background: var(--primary); font-size: 4rem; color: white;">
+                        {{ profile_user.username|slice:":1"|upper }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <h1 class="text-gradient mb-2" style="font-size: 2.5rem;">
+                {{ profile_user.username }}
+                {% if profile.is_verified %}
+                <ion-icon name="checkmark-circle" class="text-secondary"
+                    style="font-size: 1.75rem; vertical-align: middle; margin-left: 8px;"></ion-icon>
+                {% endif %}
+            </h1>
+
+            <!-- Full Name -->
+            {% if profile_user.get_full_name %}
+            <p style="color: var(--text-main); font-size: 1.25rem; font-weight: 500; margin-bottom: 0.5rem;">
+                {{ profile_user.get_full_name }}
+            </p>
+            {% endif %}
+
+            <!-- Bio -->
+            <p class="text-muted mb-4"
+                style="max-width: 600px; margin-left: auto; margin-right: auto; font-size: 1.05rem;">
+                {{ profile.bio|default:"No bio available yet." }}
+            </p>
+
+            <!-- Location and Website -->
+            <div class="flex-center gap-4 mb-6" style="flex-wrap: wrap;">
+                {% if profile.location %}
+                <div class="flex-center gap-2 text-muted" style="font-size: 0.95rem;">
+                    <ion-icon name="location-outline" class="text-primary"></ion-icon>
+                    {{ profile.location }}
+                </div>
+                {% endif %}
+
+                {% if profile.website %}
+                <a href="{{ profile.website }}" target="_blank" class="flex-center gap-2 text-secondary"
+                    style="font-size: 0.95rem;">
+                    <ion-icon name="link-outline"></ion-icon>
+                    {{ profile.website }}
+                </a>
+                {% endif %}
+
+                <div class="flex-center gap-2 text-muted" style="font-size: 0.95rem;">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    Joined {{ profile_user.date_joined|date:"F Y" }}
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="flex-center gap-8 mb-8"
+                style="border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); padding: 1.25rem 0;">
+                <div class="text-center">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-main);">{{ posts.count }}</div>
+                    <div class="text-dim" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">
+                        Posts</div>
+                </div>
+                <div class="text-center">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-main);">{{ profile.followers_count }}</div>
+                    <div class="text-dim" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">
+                        Followers</div>
+                </div>
+                <div class="text-center">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-main);">{{ profile.following_count }}</div>
+                    <div class="text-dim" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">
+                        Following</div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex-center gap-3" style="flex-wrap: wrap;">
+                {% if user.is_authenticated and user == profile_user %}
+                <a href="{% url 'profile_update' %}" class="btn btn-primary btn-pill">
+                    <ion-icon name="create-outline"></ion-icon>
+                    Edit Profile
+                </a>
+                {% elif user.is_authenticated %}
+                <a href="{% url 'follow_user_toggle' profile_user.username %}"
+                    class="btn btn-pill {% if is_following %}btn-outline{% else %}btn-primary{% endif %}">
+                    <ion-icon
+                        name="{% if is_following %}person-remove-outline{% else %}person-add-outline{% endif %}"></ion-icon>
+                    {% if is_following %}Unfollow{% else %}Follow{% endif %}
+                </a>
+                <button class="btn btn-secondary btn-pill">
+                    <ion-icon name="chatbubble-outline"></ion-icon> Message
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- User Posts Stream -->
+    <div class="section-header flex-between mb-4">
+        <h3 class="text-gradient" style="font-size: 1.5rem;">Recent Activity</h3>
+    </div>
+
+    <div class="feed-stream">
+        {% for post in posts %}
+        <article class="stellar-card mb-4 animate-fade-in reveal-{{ forloop.counter|slice:':2' }}"
+            style="padding: 1.5rem;">
+            <div class="flex-between mb-3">
+                <span class="text-dim" style="font-size: 0.9rem;">{{ post.created_at|date:"M d, Y" }}</span>
+                {% if post.is_pinned %}
+                <ion-icon name="pin" class="text-accent"></ion-icon>
+                {% endif %}
+            </div>
+            <div style="font-size: 1.15rem; line-height: 1.6; color: var(--text-main); margin-bottom: 1.25rem;">{{ post.content_html|safe }}</div>
+
+            {% if post.image %}
+            <div class="post-media mb-4" style="border-radius: var(--radius-md);">
+                <img src="{{ post.image.url }}" alt="Post image"
+                    style="max-height: 400px; width: 100%; object-fit: cover; border-radius: var(--radius-md);">
+            </div>
+            {% elif post.video %}
+            <div class="post-media mb-4" style="border-radius: var(--radius-md);">
+                <video src="{{ post.video.url }}" controls
+                    style="width: 100%; max-height: 400px; border-radius: var(--radius-md);"></video>
+            </div>
+            {% endif %}
+            <div class="flex-center" style="justify-content: flex-start; gap: 1.5rem;">
+                <a href="{% url 'post_detail' post.id %}" class="action-btn">
+                    <ion-icon name="heart" class="text-accent"></ion-icon> {{ post.likes.count }}
+                </a>
+                <a href="{% url 'post_detail' post.id %}" class="action-btn">
+                    <ion-icon name="chatbubble" class="text-secondary"></ion-icon> {{ post.comments.count }}
+                </a>
+                <a href="{% url 'post_detail' post.id %}" class="btn-ghost"
+                    style="margin-left: auto; font-size: 0.9rem;">
+                    View Details <ion-icon name="arrow-forward-outline"
+                        style="vertical-align: middle; margin-left: 4px;"></ion-icon>
+                </a>
+            </div>
+        </article>
+        {% empty %}
+        <div class="stellar-card text-center" style="padding: 4rem;">
+            <ion-icon name="document-text-outline"
+                style="font-size: 3rem; color: var(--text-dim); margin-bottom: 1rem;"></ion-icon>
+            <p class="text-muted">This user hasn't posted anything yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

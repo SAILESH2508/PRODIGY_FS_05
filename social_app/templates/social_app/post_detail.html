@@ -1,0 +1,233 @@
+{% extends 'social_app/base.html' %}
+{% load static %}
+
+{% block title %}Post by {{ post.user.username }} - SocialHub{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+
+    <!-- Post Detail -->
+    <article class="stellar-card post-card" style="padding: 0;">
+
+        <!-- Post Header -->
+        <div style="padding: 1.5rem; border-bottom: 1px solid var(--glass-border);" class="flex-between">
+            <div class="flex-center gap-3">
+                <div class="avatar-wrapper">
+                    {% if post.user.profile.avatar %}
+                    <img src="{{ post.user.profile.avatar.url }}" alt="{{ post.user.username }}" class="avatar">
+                    {% else %}
+                    <div class="avatar flex-center"
+                        style="background: var(--primary); font-weight: bold; font-size: 1.3rem; color: white;">
+                        {{ post.user.username|slice:":1"|upper }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div>
+                    <h4 class="mb-1">
+                        <a href="{% url 'profile' post.user.username %}" class="btn-ghost"
+                            style="padding: 0; display: inline;">
+                            {{ post.user.username }}
+                            {% if post.user.profile.is_verified %}
+                            <ion-icon name="checkmark-circle" class="text-secondary"
+                                style="font-size: 1.1rem; vertical-align: middle;"></ion-icon>
+                            {% endif %}
+                        </a>
+                    </h4>
+                    <p class="text-muted" style="font-size: 0.85rem;">
+                        {{ post.created_at|date:"M d, Y • H:i" }}
+                        {% if post.updated_at != post.created_at %} • Edited{% endif %}
+                        {% if post.is_pinned %}
+                        <ion-icon name="pin" class="text-accent" style="margin-left: 8px;"></ion-icon>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Post Actions (for owner) -->
+            {% if post.user == user %}
+            <div class="flex-center gap-2">
+                <a href="{% url 'toggle_pin_post' post.id %}" class="btn-ghost"
+                    style="padding: 8px; border-radius: 50%;"
+                    title="{% if post.is_pinned %}Unpin{% else %}Pin{% endif %} Post">
+                    <ion-icon name="pin{% if not post.is_pinned %}-outline{% endif %}"
+                        style="font-size: 1.2rem;"></ion-icon>
+                </a>
+                <a href="{% url 'delete_post' post.id %}" class="btn-ghost text-accent"
+                    style="padding: 8px; border-radius: 50%;" title="Delete Post">
+                    <ion-icon name="trash-outline" style="font-size: 1.2rem;"></ion-icon>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Post Content -->
+        <div style="padding: 2rem;">
+            <div style="font-size: 1.25rem; line-height: 1.6; color: var(--text-main); margin-bottom: 1.5rem;">{{ post.content_html|safe }}</div>
+
+            {% if post.image %}
+            <div class="post-media" style="border-radius: var(--radius-lg);">
+                <img src="{{ post.image.url }}" alt="Post image" style="max-height: 600px;">
+            </div>
+            {% elif post.video %}
+            <div class="post-media" style="border-radius: var(--radius-lg);">
+                <video src="{{ post.video.url }}" controls
+                    style="width: 100%; max-height: 600px; border-radius: var(--radius-lg);"></video>
+            </div>
+            {% endif %}
+
+            <!-- Hashtags -->
+            {% if post.hashtags.all %}
+            <div class="flex-center" style="justify-content: flex-start; gap: 0.75rem; margin-top: 1.5rem;">
+                {% for hashtag in post.hashtags.all %}
+                <a href="{% url 'hashtag_view' hashtag.name %}" class="text-secondary"
+                    style="font-weight: 500; font-size: 1rem;">
+                    #{{ hashtag.name }}
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Action Bar -->
+        <div class="post-actions"
+            style="padding: 1.25rem 2rem; background: hsla(var(--h-primary), 91%, 60%, 0.03); border: none;">
+            <a href="{% url 'like_post_toggle' post.id %}"
+                class="action-btn {% if post.is_liked_by_user %}liked{% endif %}" style="gap: 10px;">
+                <ion-icon name="heart{% if post.is_liked_by_user %}{% else %}-outline{% endif %}"
+                    style="font-size: 1.8rem;"></ion-icon>
+                <span style="font-size: 1.1rem; font-weight: 600;">{{ post.likes_count }}</span>
+            </a>
+
+            <div class="action-btn" style="gap: 10px;">
+                <ion-icon name="chatbubble-outline" style="font-size: 1.8rem;"></ion-icon>
+                <span style="font-size: 1.1rem; font-weight: 600;">{{ post.comments_count }}</span>
+            </div>
+        </div>
+
+    </article>
+
+    <!-- Add Comment Form -->
+    <div class="stellar-card mb-6 animate-fade-in" style="animation-delay: 0.2s; padding: 1.25rem;">
+        <h3 class="mb-3 text-gradient" style="font-size: 1.2rem;">Join the conversation</h3>
+        <form action="{% url 'add_comment_to_post' post.id %}" method="post">
+            {% csrf_token %}
+            <div class="flex-center gap-3">
+                <div class="stellar-input-group" style="padding: 0.25rem 0.5rem;">
+                    <input type="text" name="text" class="stellar-input" placeholder="What are your thoughts?" required
+                        style="font-size: 0.95rem;">
+                </div>
+                <button type="submit" class="btn btn-primary" style="padding: 0.6rem 1.2rem; min-width: auto;">
+                    <ion-icon name="send" style="font-size: 1.1rem;"></ion-icon>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="comments-section">
+        {% for comment in comments %}
+        <div class="stellar-card mb-4 animate-fade-in reveal-{{ forloop.counter|add:2|slice:':2' }}"
+            style="padding: 1rem;">
+            <!-- Main Comment -->
+            <div class="flex-center" style="align-items: flex-start; gap: 0.75rem; justify-content: flex-start;">
+                <div class="avatar-wrapper" style="width: 36px; height: 36px;">
+                    {% if comment.user.profile.avatar %}
+                    <img src="{{ comment.user.profile.avatar.url }}" alt="{{ comment.user.username }}" class="avatar">
+                    {% else %}
+                    <div class="avatar flex-center"
+                        style="background: var(--secondary); font-weight: bold; font-size: 0.9rem; color: white;">
+                        {{ comment.user.username|slice:":1"|upper }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div style="flex: 1;">
+                    <div class="mb-1">
+                        <strong class="text-secondary" style="font-size: 0.95rem;">{{ comment.user.username }}</strong>
+                        <span class="text-dim" style="font-size: 0.75rem; margin-left: 0.5rem;">
+                            {{ comment.created_at|timesince }} ago
+                        </span>
+                    </div>
+                    <p style="margin: 0; color: var(--text-main); font-size: 0.9rem;">{{ comment.text|urlize|linebreaksbr }}</p>
+
+                    <!-- Reply Button -->
+                    <button onclick="toggleReplyForm('{{ comment.id }}')" class="btn-ghost"
+                        style="padding: 4px 8px; font-size: 0.8rem; margin-top: 0.5rem; border-radius: var(--radius-sm);">
+                        <ion-icon name="return-down-forward-outline"
+                            style="vertical-align: middle; margin-right: 4px;"></ion-icon> Reply
+                    </button>
+                </div>
+            </div>
+
+            <!-- Reply Form (Hidden by default) -->
+            <div id="reply-form-{{ comment.id }}" style="display: none; margin-top: 1.25rem; margin-left: 3rem;">
+                <form action="{% url 'add_reply_to_comment' comment.id %}" method="post">
+                    {% csrf_token %}
+                    <div class="flex-center gap-2">
+                        <div class="stellar-input-group">
+                            <input type="text" name="text" class="stellar-input"
+                                style="padding: 0.6rem 1rem; font-size: 0.9rem;"
+                                placeholder="Reply to {{ comment.user.username }}..." required>
+                        </div>
+                        <button type="submit" class="btn btn-secondary"
+                            style="padding: 0.6rem 1.25rem; font-size: 0.9rem;">
+                            Reply
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Replies -->
+            {% if comment.replies.all %}
+            <div
+                style="margin-top: 1rem; margin-left: 2.5rem; display: flex; flex-direction: column; gap: 0.75rem; border-left: 1px solid var(--glass-border); padding-left: 1rem;">
+                {% for reply in comment.replies.all %}
+                <div class="flex-center" style="align-items: flex-start; gap: 0.75rem; justify-content: flex-start;">
+                    <div class="avatar-wrapper" style="width: 28px; height: 28px;">
+                        {% if reply.user.profile.avatar %}
+                        <img src="{{ reply.user.profile.avatar.url }}" alt="{{ reply.user.username }}" class="avatar">
+                        {% else %}
+                        <div class="avatar flex-center"
+                            style="background: var(--accent); font-weight: bold; font-size: 0.75rem; color: white;">
+                            {{ reply.user.username|slice:":1"|upper }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <div class="mb-1">
+                            <strong class="text-accent" style="font-size: 0.85rem;">{{ reply.user.username }}</strong>
+                            <span class="text-dim" style="font-size: 0.7rem; margin-left: 0.4rem;">
+                                {{ reply.created_at|timesince }} ago
+                            </span>
+                        </div>
+                        <p style="margin: 0; color: var(--text-main); font-size: 0.9rem;">{{ reply.text|urlize|linebreaksbr }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="stellar-card text-center" style="padding: 3rem;">
+            <p class="text-muted">No comments yet. Start the conversation!</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<script>
+    function toggleReplyForm(commentId) {
+        const form = document.getElementById(`reply-form-${commentId}`);
+        if (form.style.display === 'none' || form.style.display === '') {
+            // Close others
+            document.querySelectorAll('[id^="reply-form-"]').forEach(f => f.style.display = 'none');
+            form.style.display = 'block';
+            form.querySelector('input[name="text"]').focus();
+        } else {
+            form.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}

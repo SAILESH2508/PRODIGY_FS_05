@@ -1,0 +1,45 @@
+{% extends 'social_app/base.html' %}
+
+{% block title %}Join SocialHub{% endblock %}
+
+{% block content %}
+<div class="auth-layout animate-fade-in">
+    <div class="stellar-card auth-card">
+        <h2 class="text-center mb-1 text-gradient" style="font-size: 2.25rem;">Create Account</h2>
+        <p class="text-center text-muted mb-6">Join the community and start sharing</p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="mb-4">
+                <label for="{{ field.id_for_label }}" class="text-muted mb-2"
+                    style="display: block; font-size: 0.9rem;">
+                    {{ field.label }}
+                </label>
+                <div class="stellar-input-group">
+                    <input
+                        type="{% if field.name == 'password' or 'password' in field.name %}password{% else %}text{% endif %}"
+                        name="{{ field.name }}" id="{{ field.id_for_label }}" class="stellar-input"
+                        placeholder="{{ field.label }}">
+                </div>
+                {% if field.errors %}
+                <p class="text-accent mt-2" style="font-size: 0.8rem;">{{ field.errors.0 }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-primary btn-pill" style="width: 100%; margin-top: 1rem;">
+                Sign Up
+            </button>
+        </form>
+
+        <div class="text-center mt-6">
+            <p class="text-muted">
+                Already have an account?
+                <a href="{% url 'login' %}" class="text-secondary" style="font-weight: 600;">Sign In</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

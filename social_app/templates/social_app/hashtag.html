@@ -1,0 +1,130 @@
+{% extends 'social_app/base.html' %}
+{% load static %}
+
+{% block title %}#{{ hashtag.name }} - SocialHub{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+
+    <!-- Hashtag Header -->
+    <div class="stellar-card mb-8 text-center animate-fade-in">
+        <div class="ambient-orb"
+            style="width: 200px; height: 100px; top: 0; left: 50%; transform: translateX(-50%); opacity: 0.1; background: var(--secondary);">
+        </div>
+        <h1 class="text-gradient mb-2" style="font-size: 3rem; letter-spacing: -1px;">
+            #{{ hashtag.name }}
+        </h1>
+        <p class="text-muted" style="font-size: 1.25rem;">
+            Discover <span class="text-main" style="font-weight: 600;">{{ hashtag.posts_count }}</span> post{{ hashtag.posts_count|pluralize }} in this category
+        </p>
+    </div>
+
+    <!-- Feed Header -->
+    <div class="section-header flex-center gap-3 mb-6" style="justify-content: flex-start;">
+        <ion-icon name="trending-up" class="text-secondary" style="font-size: 1.5rem;"></ion-icon>
+        <h3 class="text-white mb-0" style="font-size: 1.5rem;">Recent Stories</h3>
+    </div>
+
+    <!-- Posts Stream -->
+    <div class="feed-stream">
+        {% for post in posts %}
+        <article class="stellar-card post-card mb-6 animate-fade-in reveal-{{ forloop.counter|slice:':2' }}"
+            style="padding: 0;">
+            <!-- Simple Post Header -->
+            <div style="padding: 1.25rem 1.75rem; border-bottom: 1px solid var(--glass-border);" class="flex-between">
+                <div class="flex-center gap-3">
+                    <div class="avatar-wrapper" style="width: 36px; height: 36px;">
+                        {% if post.user.profile.avatar %}
+                        <img src="{{ post.user.profile.avatar.url }}" alt="{{ post.user.username }}" class="avatar">
+                        {% else %}
+                        <div class="avatar flex-center"
+                            style="background: var(--primary); font-size: 0.9rem; color: white;">
+                            {{ post.user.username|slice:":1"|upper }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h4 class="mb-0" style="font-size: 1rem;">
+                            <a href="{% url 'profile' post.user.username %}" class="text-white hover-secondary">{{ post.user.username }}</a>
+                        </h4>
+                        <span class="text-dim" style="font-size: 0.8rem;">{{ post.created_at|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+                {% if post.is_pinned %}
+                <ion-icon name="pin" class="text-accent"></ion-icon>
+                {% endif %}
+            </div>
+
+            <!-- Post Content -->
+            <div style="padding: 1.75rem;">
+                <div class="text-main" style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 0;">{{ post.content_html|safe }}</div>
+
+                {% if post.image %}
+                <div class="post-media mt-4" style="border-radius: var(--radius-md);">
+                    <img src="{{ post.image.url }}" alt="Post image" style="max-height: 350px;">
+                </div>
+                {% elif post.video %}
+                <div class="post-media mt-4" style="border-radius: var(--radius-md);">
+                    <video src="{{ post.video.url }}" controls
+                        style="width: 100%; max-height: 350px; border-radius: var(--radius-md);"></video>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Action Area -->
+            <div class="flex-between"
+                style="padding: 1rem 1.75rem; background: hsla(var(--h-primary), 91%, 60%, 0.03);">
+                <div class="flex-center gap-4">
+                    <div class="flex-center gap-2 text-dim" style="font-size: 0.9rem;">
+                        <ion-icon name="heart" class="text-accent" style="font-size: 1.2rem;"></ion-icon>
+                        {{ post.likes.count }}
+                    </div>
+                    <div class="flex-center gap-2 text-dim" style="font-size: 0.9rem;">
+                        <ion-icon name="chatbubble" class="text-secondary" style="font-size: 1.1rem;"></ion-icon>
+                        {{ post.comments.count }}
+                    </div>
+                </div>
+                <a href="{% url 'post_detail' post.id %}" class="btn-ghost"
+                    style="font-size: 0.9rem; padding: 4px 12px; border-radius: 6px;">
+                    Read More
+                </a>
+            </div>
+        </article>
+        {% empty %}
+        <div class="stellar-card text-center animate-fade-in reveal-{{ forloop.counter|slice:':2' }}"
+            style="padding: 5rem 2rem;">
+            <ion-icon name="cloud-offline-outline"
+                style="font-size: 4rem; color: var(--text-dim); margin-bottom: 1.5rem; opacity: 0.5;"></ion-icon>
+            <h3 class="text-white mb-2">No posts found</h3>
+            <p class="text-muted">No one has used this hashtag yet. Be the first!</p>
+            <a href="{% url 'post_create' %}" class="btn btn-primary btn-pill mt-6">Create Post</a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="flex-center mt-10 mb-10">
+        <div class="stellar-card py-2 px-4 flex-center gap-4">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="btn-ghost"
+                style="padding: 8px; border-radius: 50%;">
+                <ion-icon name="chevron-back-outline" style="font-size: 1.25rem;"></ion-icon>
+            </a>
+            {% endif %}
+
+            <span class="text-muted" style="font-weight: 500;">
+                <span class="text-main">{{ page_obj.number }}</span> / {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="btn-ghost" style="padding: 8px; border-radius: 50%;">
+                <ion-icon name="chevron-forward-outline" style="font-size: 1.25rem;"></ion-icon>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
